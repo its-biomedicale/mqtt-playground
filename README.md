@@ -1,4 +1,4 @@
-# MQTT Client Example
+# MQTT Playground
 
 Follow these steps to set up the project after cloning it from GitHub.
 
