@@ -7,13 +7,13 @@ import json
 BROKER = "localhost"
 PORT = 1883
 TOPIC_DATA = "serbatoi/sensori"
-TOPIC_COMMAND = "serbatoi/comandi/Tank_1"
+TOPIC_COMMAND = "serbatoi/comandi/Tank_2"
 CLIENT_ID = "Tank_1"
 
 # Funzione per simulare i dati del serbatoio
 def get_tank_data():
     return {
-        "tank_id": "Tank_1",
+        "tank_id": CLIENT_ID,
         "water_level": random.randint(0, 100),  # Simula il livello d'acqua tra 0% e 100%
     }
 
@@ -22,9 +22,9 @@ def on_message(client, userdata, message):
     command = message.payload.decode()
     print(f"[{CLIENT_ID}] Comando ricevuto dal server: {command}")
     if command == "ATTIVA_POMPA":
-        print("[{CLIENT_ID}] Pompa attivata per riempire il serbatoio.")
+        print(f"[{CLIENT_ID}] Pompa attivata per riempire il serbatoio.")
     elif command == "DISATTIVA_POMPA":
-        print("[{CLIENT_ID}] Pompa disattivata.")
+        print(f"[{CLIENT_ID}] Pompa disattivata.")
 
 # Connessione al broker MQTT
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, CLIENT_ID)
@@ -52,6 +52,6 @@ try:
         time.sleep(5)
 
 except KeyboardInterrupt:
-    print("[{CLIENT_ID}]Chiusura del client MQTT.")
+    print(f"[{CLIENT_ID}]Chiusura del client MQTT.")
     client.loop_stop()
     client.disconnect()

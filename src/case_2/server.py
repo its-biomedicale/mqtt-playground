@@ -38,9 +38,9 @@ client.subscribe(TOPIC_DATA)
 
 # Loop principale per mantenere la connessione e ascoltare i messaggi
 try:
-    print("[{CLIENT_ID}] Server in ascolto sui dati dei serbatoi...")
+    print(f"[{CLIENT_ID}] Server in ascolto sui dati dei serbatoi...")
     client.loop_forever()
 
 except KeyboardInterrupt:
-    print("[{CLIENT_ID}] Chiusura del server MQTT.")
+    print(f"[{CLIENT_ID}] Chiusura del server MQTT.")
     client.disconnect()
