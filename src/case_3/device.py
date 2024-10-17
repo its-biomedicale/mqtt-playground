@@ -3,6 +3,13 @@ import random
 import time
 import json
 
+# Configurazione MQTT
+BROKER = "localhost"  # Si assume che il broker sia in esecuzione sulla macchina locale
+PORT = 1883
+TOPIC_SENSORI = "droni/sensori"
+CLIENT_ID = "Drone_1"
+TOPIC_COMANDI = f"droni/comandi/{CLIENT_ID}"
+
 # Funzione per simulare i dati del drone
 def get_drone_data():
     return {
@@ -13,19 +20,14 @@ def get_drone_data():
 
 # Callback quando si riceve un messaggio MQTT
 def on_message(client, userdata, msg):
-    print(f"Dati ricevuti: {msg.payload}")
-
-# Configurazione MQTT
-BROKER = "localhost"  # Si assume che il broker sia in esecuzione sulla macchina locale
-PORT = 1883
-TOPIC = "droni/sensori"
-CLIENT_ID = "Drone_1"
+    print(f"[{CLIENT_ID}] Dati ricevuti: {msg.payload}")
 
 # Connessione al broker MQTT
-client = mqtt.Client(CLIENT_ID)
+client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, CLIENT_ID)
 client.connect(BROKER, PORT, 60)
-client.subscribe(f"droni/comandi/{CLIENT_ID}")
+client.subscribe(TOPIC_COMANDI)
 client.on_message = on_message  # Associa la funzione on_message come callback
+client.loop_start()
 
 # Loop principale per inviare dati ogni 5 secondi
 try:
@@ -37,12 +39,12 @@ try:
         drone_data_json = json.dumps(drone_data)
 
         # Pubblica i dati al server MQTT
-        client.publish(TOPIC, drone_data_json)
-        print(f"Dati inviati: {drone_data_json}")
+        client.publish(TOPIC_SENSORI, drone_data_json)
+        print(f"[{CLIENT_ID}] Dati inviati: {drone_data_json}")
 
         # Attende 5 secondi prima di inviare i nuovi dati
         time.sleep(5)
 
 except KeyboardInterrupt:
-    print("Chiusura del client MQTT.")
+    print(f"[{CLIENT_ID}] Chiusura del client MQTT.")
     client.disconnect()

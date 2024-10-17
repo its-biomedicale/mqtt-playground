@@ -3,6 +3,13 @@ import random
 import time
 import json
 
+# Configurazione MQTT
+BROKER = "localhost"
+PORT = 1883
+TOPIC_DATA = "serbatoi/sensori"
+TOPIC_COMMAND = "serbatoi/comandi/Tank_1"
+CLIENT_ID = "Tank_1"
+
 # Funzione per simulare i dati del serbatoio
 def get_tank_data():
     return {
@@ -13,21 +20,14 @@ def get_tank_data():
 # Callback per gestire i messaggi dal server
 def on_message(client, userdata, message):
     command = message.payload.decode()
-    print(f"Comando ricevuto dal server: {command}")
+    print(f"[{CLIENT_ID}] Comando ricevuto dal server: {command}")
     if command == "ATTIVA_POMPA":
-        print("Pompa attivata per riempire il serbatoio.")
+        print("[{CLIENT_ID}] Pompa attivata per riempire il serbatoio.")
     elif command == "DISATTIVA_POMPA":
-        print("Pompa disattivata.")
-
-# Configurazione MQTT
-BROKER = "localhost"
-PORT = 1883
-TOPIC_DATA = "serbatoi/sensori"
-TOPIC_COMMAND = "serbatoi/comandi/Tank_1"
-CLIENT_ID = "Tank_1"
+        print("[{CLIENT_ID}] Pompa disattivata.")
 
 # Connessione al broker MQTT
-client = mqtt.Client(CLIENT_ID)
+client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, CLIENT_ID)
 client.on_message = on_message
 
 client.connect(BROKER, PORT, 60)
@@ -46,12 +46,12 @@ try:
 
         # Pubblica i dati al server MQTT
         client.publish(TOPIC_DATA, tank_data_json)
-        print(f"Dati inviati: {tank_data_json}")
+        print(f"[{CLIENT_ID}] Dati inviati: {tank_data_json}")
 
         # Attende 5 secondi prima di inviare nuovi dati
         time.sleep(5)
 
 except KeyboardInterrupt:
-    print("Chiusura del client MQTT.")
+    print("[{CLIENT_ID}]Chiusura del client MQTT.")
     client.loop_stop()
     client.disconnect()

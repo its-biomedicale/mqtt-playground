@@ -1,6 +1,12 @@
 import paho.mqtt.client as mqtt
 import json
 
+# Configurazione MQTT
+BROKER = "localhost"
+PORT = 1883
+TOPIC = "droni/sensori"
+CLIENT_ID = "Server_Centrale"
+
 # Callback quando si riceve un messaggio MQTT
 def on_message(client, userdata, msg):
     # Decodifica il payload del messaggio
@@ -15,16 +21,10 @@ def on_message(client, userdata, msg):
 def send_command(drone_id, message):
     command_topic = f"droni/comandi/{drone_id}"
     client.publish(command_topic, message)
-    print(f"Comando inviato al {drone_id}: {message}")
-
-# Configurazione MQTT
-BROKER = "localhost"
-PORT = 1883
-TOPIC = "droni/sensori"
-CLIENT_ID = "Server_Centrale"
+    print(f"Comando inviato al {drone_id} sul topic {command_topic}: {message}")
 
 # Configurazione del client MQTT
-client = mqtt.Client(CLIENT_ID)
+client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, CLIENT_ID)
 client.on_message = on_message  # Associa la funzione on_message come callback
 
 # Connessione al broker e sottoscrizione al topic dei sensori
@@ -33,9 +33,9 @@ client.subscribe(TOPIC)
 
 # Loop principale per mantenere la connessione e ascoltare i messaggi
 try:
-    print("Server in ascolto sui dati dei droni...")
+    print(f"[{CLIENT_ID}] Server in ascolto sui dati dei droni...")
     client.loop_forever()
 
 except KeyboardInterrupt:
-    print("Chiusura del server MQTT.")
+    print(f"[{CLIENT_ID}] Chiusura del server MQTT.")
     client.disconnect()
